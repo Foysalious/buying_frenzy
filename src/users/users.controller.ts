@@ -6,8 +6,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Controller('api/v1')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
-
-  @Post('users')
+// This method was created to transfer the data from json
+  @Post('users-data')
   addDataFromJson() {
     return this.usersService.addDataFromJson();
   }
