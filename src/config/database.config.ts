@@ -6,7 +6,7 @@ export default registerAs(
   'typeOrmConfig',
   (): TypeOrmModuleOptions => ({
     type: 'mongodb',
-    url: process.env.MONGO_DSN??'mongodb://localhost:27017/restaurant',
+    url: process.env.MONGO_DSN??'mongodb+srv://test:test@cluster0.7bupr.mongodb.net/restaurant',
     entities: [__dirname + '/../**/*.entity.{js,ts}'],
   }),
 );
