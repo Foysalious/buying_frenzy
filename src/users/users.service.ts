@@ -8,6 +8,10 @@ import { UserRepository } from './user.repository';
 const fs = require("fs");
 import * as mongodb from "mongodb";
 import { Transaction } from 'typeorm';
+import { Menu } from 'src/restaurant/entities/menu.entity';
+import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
+import { User } from './entities/user.entity';
+import { log } from 'console';
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(UserRepository) private userRepository: UserRepository,
@@ -25,6 +29,8 @@ export class UsersService {
       })
     }
   }
+
+
   async uploadUserInfo(data: string | any[]) {
     for (let i = 0; i < data.length; i++) {
       await this.userRepository.save({
@@ -35,6 +41,8 @@ export class UsersService {
       this.uploadTransaction(data[i].purchaseHistory, data[i].id)
     }
   }
+
+
   addDataFromJson() {
     fs.readFile("./users_with_purchase_history.json", "utf8", (err, data) => {
       if (err) {
@@ -43,6 +51,8 @@ export class UsersService {
       this.uploadUserInfo(JSON.parse(data))
     });
   }
+
+
   padTo2Digits(num) {
     return num.toString().padStart(2, '0');
   }
@@ -63,33 +73,33 @@ export class UsersService {
     );
   }
 
-  @Transaction()
-  async postTransaction(createTransactionDto: CreateTransactionDto) {
+  async getMenu(createTransactionDto: CreateTransactionDto) {
     const menu = await this.menuRepository.findOne({
       where: {
         _id: new mongodb.ObjectId(createTransactionDto.menu_id)
       }
     })
-    if (menu == undefined)
-      throw new NotFoundException("Not Found")
 
-    const restaurant = await this.restaurantRepository.findOne({
+    return menu
+  }
+
+  async getRestaurant(menu: Menu) {
+    return await this.restaurantRepository.findOne({
       where: {
         _id: new mongodb.ObjectId(menu.id)
       }
     })
-    const user = await this.userRepository.findOne({
+  }
+
+  async getUser(createTransactionDto: CreateTransactionDto) {
+    return await this.userRepository.findOne({
       where: {
         id: Number(createTransactionDto.user_id)
       }
     })
-    if (user == undefined)
-      throw new NotFoundException("Not Found")
+  }
 
-    const date = this.formatDate(new Date())
-    if (user.cashBalance < menu.price) {
-        throw new UnauthorizedException('Do not have enough cash')
-    }
+  async transaction(restaurant: Restaurant, menu: Menu, user: User, createTransactionDto: CreateTransactionDto, date: string) {
     await this.restaurantRepository.update(restaurant, { cashBalance: menu.price + restaurant.cashBalance });
     await this.userRepository.update(user, { cashBalance: user.cashBalance - menu.price });
     await this.transactionRepository.save({
@@ -99,6 +109,22 @@ export class UsersService {
       id: Number(createTransactionDto.user_id),
       transactionDate: date
     })
+  }
+
+  async postTransaction(createTransactionDto: CreateTransactionDto): Promise<void> {
+    const menu = await this.getMenu(createTransactionDto)
+    if (menu == undefined)
+      throw new NotFoundException("Not Found")
+    const restaurant = await this.getRestaurant(menu)
+    const user = await this.getUser(createTransactionDto)
+    if (user == undefined)
+      throw new NotFoundException("Not Found")
+
+    const date = this.formatDate(new Date())
+    if (user.cashBalance < menu.price) {
+      throw new UnauthorizedException('Do not have enough cash')
+    }
+    this.transaction(restaurant, menu, user, createTransactionDto, date)
   }
 
 }
