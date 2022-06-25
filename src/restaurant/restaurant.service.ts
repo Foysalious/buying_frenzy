@@ -1,17 +1,14 @@
 import { BadRequestException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like } from "typeorm";
-import { GetRestaurantDto } from './restaurant/dto/get-restaurant.dto';
-import { UpdateRestaurantDto } from './restaurant/dto/update-restaurant.dto';
-import { MenuRepository } from './restaurant/repository/menu.repository';
-import { RestaurantRepository } from './restaurant/repository/restaurant.repository';
-import { TimingRepository } from './restaurant/repository/timing.repository';
+import { GetRestaurantDto } from './dto/get-restaurant.dto';
+import { MenuRepository } from './repository/menu.repository';
+import { RestaurantRepository } from './repository/restaurant.repository';
+import { TimingRepository } from './repository/timing.repository';
 const fs = require("fs");
 import * as mongodb from "mongodb";
-import { FilterRestaurantMenu } from './restaurant/dto/filter-restaurant-menu.dto';
-import { SearchDto } from './restaurant/dto/search.dto';
-import { log } from 'console';
-import { merge } from 'rxjs';
+import { FilterRestaurantMenu } from './dto/filter-restaurant-menu.dto';
+import { SearchDto } from './dto/search.dto';
+
 @Injectable()
 export class RestaurantService {
   constructor(@InjectRepository(MenuRepository) private menuRepository: MenuRepository,
@@ -101,6 +98,7 @@ export class RestaurantService {
         }, select: ['_id']
       })
     }
+
     else {
       var restaurants = await this.restaurantRepository.find({
         where: {
@@ -108,6 +106,7 @@ export class RestaurantService {
         }, select: ['_id']
       })
     }
+
     const restaurantIds = []
     for (let i = 0; i < restaurants.length; i++) {
       var menus = await this.menuRepository.find({
@@ -133,23 +132,22 @@ export class RestaurantService {
     const sortedName = resturantName.sort((a, b) => a.restaurantName.localeCompare(b.restaurantName))
     return sortedName.slice(0, Number(filterRestaurantMenu.restaurant_count))
   }
+
   async searchRestauratDish(searchDto: SearchDto) {
     const restaurant = await this.restaurantRepository.find({
       where: {
         restaurantName: { $regex: ".*" + searchDto.search + ".*" }
       }, select: ['restaurantName']
     })
-
-
     const menu = await this.menuRepository.find({
       where: {
         dishName: { $regex: ".*" + searchDto.search + ".*" }
       }, select: ['dishName']
     })
     const merge = [...menu, ...restaurant]
-    if (merge.length == 0) 
+    if (merge.length == 0)
       throw new NotFoundException("No Dish Or Restaurant Found");
-    return merge 
+    return merge
   }
 
 }

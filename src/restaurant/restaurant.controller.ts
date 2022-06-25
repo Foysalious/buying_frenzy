@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req, Query } from '@nestjs/common';
-import { RestaurantService } from '../restaurant.service';
+import { RestaurantService } from './restaurant.service';
 import { GetRestaurantDto } from './dto/get-restaurant.dto';
 import { FilterRestaurantMenu } from './dto/filter-restaurant-menu.dto';
 import { SearchDto } from './dto/search.dto';
