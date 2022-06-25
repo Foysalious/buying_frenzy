@@ -8,10 +8,10 @@ import { SearchDto } from './dto/search.dto';
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) { }
 
-  @Post('restaurant')
-  addDataFromJson() {
-    return this.restaurantService.addDataFromJson();
-  }
+  // @Post('restaurant')
+  // addDataFromJson() {
+  //   return this.restaurantService.addDataFromJson();
+  // }
 
   @Get('restaurants')
   getAllRestaurant(@Query() getRestaurantDto:GetRestaurantDto) {

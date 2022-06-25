@@ -1,14 +1,13 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { log } from 'console';
 import { MenuRepository } from 'src/restaurant/repository/menu.repository';
 import { RestaurantRepository } from 'src/restaurant/repository/restaurant.repository';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { TransactionRepository } from './tranaction.repository';
 import { UserRepository } from './user.repository';
 const fs = require("fs");
 import * as mongodb from "mongodb";
+import { Transaction } from 'typeorm';
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(UserRepository) private userRepository: UserRepository,
@@ -64,6 +63,7 @@ export class UsersService {
     );
   }
 
+  @Transaction()
   async postTransaction(createTransactionDto: CreateTransactionDto) {
     const menu = await this.menuRepository.findOne({
       where: {
@@ -87,6 +87,9 @@ export class UsersService {
       throw new NotFoundException("Not Found")
 
     const date = this.formatDate(new Date())
+    if (user.cashBalance < menu.price) {
+        throw new UnauthorizedException('Do not have enough cash')
+    }
     await this.restaurantRepository.update(restaurant, { cashBalance: menu.price + restaurant.cashBalance });
     await this.userRepository.update(user, { cashBalance: user.cashBalance - menu.price });
     await this.transactionRepository.save({
@@ -98,5 +101,4 @@ export class UsersService {
     })
   }
 
-  
 }
