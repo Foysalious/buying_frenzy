@@ -147,7 +147,9 @@ export class RestaurantService {
       }, select: ['dishName']
     })
     const merge = [...menu, ...restaurant]
-    return merge
+    if (merge.length == 0) 
+      throw new NotFoundException("No Dish Or Restaurant Found");
+    return merge 
   }
 
 }

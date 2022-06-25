@@ -1,8 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req, Query } from '@nestjs/common';
 import { RestaurantService } from '../restaurant.service';
-
-import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import { Response, Request } from 'express';
 import { GetRestaurantDto } from './dto/get-restaurant.dto';
 import { FilterRestaurantMenu } from './dto/filter-restaurant-menu.dto';
 import { SearchDto } from './dto/search.dto';
@@ -17,17 +14,17 @@ export class RestaurantController {
   }
 
   @Get('restaurants')
-  getAllRestaurant(@Body() getRestaurantDto:GetRestaurantDto) {
+  getAllRestaurant(@Query() getRestaurantDto:GetRestaurantDto) {
     return this.restaurantService.findAll(getRestaurantDto);
   }
 
   @Get('restaurants-sort')
-  getPriceWiseRestaurant(@Body() filterRestaurantMenu:FilterRestaurantMenu) {
+  getPriceWiseRestaurant(@Query() filterRestaurantMenu:FilterRestaurantMenu) {
     return this.restaurantService.getPriceWiseRestaurant(filterRestaurantMenu);
   }
 
   @Get('search')
-  searchRestauratDish(@Body() searchDto:SearchDto) {
+  searchRestauratDish(@Query() searchDto:SearchDto) {
     return this.restaurantService.searchRestauratDish(searchDto);
   }
 }

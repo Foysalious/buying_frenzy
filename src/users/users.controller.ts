@@ -14,7 +14,8 @@ export class UsersController {
 
   @Post('purchase')
   postTransaction(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.usersService.postTransaction(createTransactionDto);
+     this.usersService.postTransaction(createTransactionDto);
+     return {message:"Successful"}
   }
 
 }
