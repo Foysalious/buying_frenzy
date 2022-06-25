@@ -7,10 +7,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  // @Post('users')
-  // addDataFromJson() {
-  //   return this.usersService.addDataFromJson();
-  // }
+  @Post('users')
+  addDataFromJson() {
+    return this.usersService.addDataFromJson();
+  }
 
   @Post('purchase')
   postTransaction(@Body() createTransactionDto: CreateTransactionDto) {

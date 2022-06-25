@@ -7,7 +7,6 @@ export class GetRestaurantDto {
     })
     day: string
     @ApiProperty({
-        deprecated: true,
         description: 'Use String Format like 10:15 am or 10 am'
       })
     time: string
