@@ -6,7 +6,7 @@ async function bootstrap() {
   
   const swaggerConfig = new DocumentBuilder()
     .setTitle('API with NestJS')
-    .setDescription('API developed throughout the API with NestJS course')
+    .setDescription('Buying Frenzy Project')
     .setVersion('1.0')
     .build();
  
