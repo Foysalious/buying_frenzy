@@ -36,6 +36,7 @@ export class RestaurantService {
 
     }
   }
+  
   async uploadMenu(menu: string | any[], id: string): Promise<void> {
     for (let i = 0; i < menu.length; i++) {
       await this.menuRepository.save({
