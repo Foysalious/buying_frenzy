@@ -5,7 +5,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('API with NestJS')
+    .setTitle('API with NodeJs')
     .setDescription('Buying Frenzy Project')
     .setVersion('1.0')
     .build();
@@ -15,3 +15,4 @@ async function bootstrap() {
   await app.listen(process.env.PORT||3000);
 }
 bootstrap();
+ 
