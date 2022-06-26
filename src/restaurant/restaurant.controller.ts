@@ -8,7 +8,7 @@ import { SearchDto } from './dto/search.dto';
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) { }
   //This method was created to transfer the data from json
-  @Post('restaurant-data')
+  @Post('migrate-restaurant-data')
   addDataFromJson() {
     return this.restaurantService.addDataFromJson();
   }

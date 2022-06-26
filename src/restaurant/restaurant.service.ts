@@ -117,9 +117,11 @@ export class RestaurantService {
       })
       restaurantIds.push(menus[0])
     }
+
     const filtered = restaurantIds.filter(function (el) {
       return el != null;
     });
+
     const resturantName = []
     for (let i = 0; i < filtered.length; i++) {
       const restaurant = await this.restaurantRepository.find({
@@ -129,6 +131,7 @@ export class RestaurantService {
       })
       resturantName.push(restaurant[0])
     }
+    
     const sortedName = resturantName.sort((a, b) => a.restaurantName.localeCompare(b.restaurantName))
     return sortedName.slice(0, Number(filterRestaurantMenu.restaurant_count))
   }
