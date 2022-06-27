@@ -12,6 +12,8 @@ import { Menu } from 'src/restaurant/entities/menu.entity';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 import { User } from './entities/user.entity';
 import { log } from 'console';
+import { Mutex } from 'async-mutex';
+
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(UserRepository) private userRepository: UserRepository,
@@ -79,7 +81,6 @@ export class UsersService {
         _id: new mongodb.ObjectId(createTransactionDto.menu_id)
       }
     })
-
     return menu
   }
 
@@ -112,19 +113,26 @@ export class UsersService {
   }
 
   async postTransaction(createTransactionDto: CreateTransactionDto): Promise<void> {
-    const menu = await this.getMenu(createTransactionDto)
-    if (menu == undefined)
-      throw new NotFoundException("Not Found")
-    const restaurant = await this.getRestaurant(menu)
-    const user = await this.getUser(createTransactionDto)
-    if (user == undefined)
-      throw new NotFoundException("Not Found")
+    const mutex = new Mutex()
+    const release = await mutex.acquire()
+    try {
+      const menu = await this.getMenu(createTransactionDto)
+      if (menu == undefined)
+        throw new NotFoundException("Not Found")
+      const restaurant = await this.getRestaurant(menu)
+      const user = await this.getUser(createTransactionDto)
+      if (user == undefined)
+        throw new NotFoundException("Not Found")
 
-    const date = this.formatDate(new Date())
-    if (user.cashBalance < menu.price) {
-      throw new UnauthorizedException('Do not have enough cash')
+      const date = this.formatDate(new Date())
+      if (user.cashBalance < menu.price) {
+        throw new UnauthorizedException('Do not have enough cash')
+      }
+      this.transaction(restaurant, menu, user, createTransactionDto, date)
     }
-    this.transaction(restaurant, menu, user, createTransactionDto, date)
+    finally {
+      release()
+    }
   }
 
 }
