@@ -23,13 +23,13 @@ export class FilterRestaurantMenu {
     sort: string
     @IsNotEmpty()
     @ApiProperty({
-        description: 'Please Enter the starting price e.g 10.44'
+        description: 'Please Enter the starting price e.g 13.87'
     })
     start_price: string
     
     @IsNotEmpty()
     @ApiProperty({
-        description: 'Please Enter the ending price e.g 12.11'
+        description: 'Please Enter the ending price e.g 13.88'
     })
     end_price: string
 }
