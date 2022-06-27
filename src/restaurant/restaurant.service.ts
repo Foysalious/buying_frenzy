@@ -120,10 +120,12 @@ export class RestaurantService {
       where: {
         price: { $gte: parseFloat(filterRestaurantMenu.start_price), $lte: parseFloat(filterRestaurantMenu.end_price) },
         $or: [{ id: { $in: restaurantIds } }]
-      }, select: ['id']
+      }, select: ['id', 'price']
     })
     const restaurantIdsFromMenu = []
-    for (let i = 0; i < menus.length; i++) restaurantIdsFromMenu.push(new mongodb.ObjectId(restaurants[i]._id));
+    for (let i = 0; i < menus.length; i++) {
+      restaurantIdsFromMenu.push(new mongodb.ObjectId(menus[i].id))
+    };
     const restaurantFromMenu = await this.restaurantRepository.find({ where: { $or: [{ _id: { $in: restaurantIdsFromMenu } }] } })
     const sortedName = restaurantFromMenu.sort((a, b) => a.restaurantName.localeCompare(b.restaurantName))
     return sortedName.slice(0, Number(filterRestaurantMenu.restaurant_count))
