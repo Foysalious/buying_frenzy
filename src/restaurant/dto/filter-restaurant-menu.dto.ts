@@ -5,13 +5,13 @@ import { Double } from "typeorm"
 export class FilterRestaurantMenu {
     @IsNotEmpty()
     @ApiProperty({
-        description: 'Write how many restaurant you want to see in the list'
+        description: 'Write how many restaurant you want to see in the list e.g 10'
     })
     restaurant_count: Number
 
     @IsNotEmpty()
     @ApiProperty({
-        description: 'Write by how many dishes you want to sort by'
+        description: 'Write by how many dishes you want to sort by e.g 10'
     })
     dishes_count: number
 

@@ -36,7 +36,7 @@ export class RestaurantService {
 
     }
   }
-  
+
   async uploadMenu(menu: string | any[], id: string): Promise<void> {
     for (let i = 0; i < menu.length; i++) {
       await this.menuRepository.save({
@@ -91,49 +91,41 @@ export class RestaurantService {
     return restaurants
   }
 
-  async getPriceWiseRestaurant(filterRestaurantMenu: FilterRestaurantMenu) {
+  async getMenuWiseRestaurants(filterRestaurantMenu: FilterRestaurantMenu) {
     if (filterRestaurantMenu.sort == 'more') {
-      var restaurants = await this.restaurantRepository.find({
+      const restaurants = await this.restaurantRepository.find({
         where: {
           menuCount: { $gt: Number(filterRestaurantMenu.dishes_count) }
         }, select: ['_id']
       })
+      return restaurants
     }
 
     else {
-      var restaurants = await this.restaurantRepository.find({
+      const restaurants = await this.restaurantRepository.find({
         where: {
           menuCount: { $lt: Number(filterRestaurantMenu.dishes_count) }
         }, select: ['_id']
       })
+      return restaurants
     }
+  }
 
+  async getPriceWiseRestaurant(filterRestaurantMenu: FilterRestaurantMenu) {
+    const restaurants = await this.getMenuWiseRestaurants(filterRestaurantMenu)
     const restaurantIds = []
-    for (let i = 0; i < restaurants.length; i++) {
-      var menus = await this.menuRepository.find({
-        where: {
-          id: new mongodb.ObjectId(restaurants[i]._id),
-          price: { $gt: parseFloat(filterRestaurantMenu.start_price), $lt: parseFloat(filterRestaurantMenu.end_price) },
-        }, select: ['id']
-      })
-      restaurantIds.push(menus[0])
-    }
+    for (let i = 0; i < restaurants.length; i++)  restaurantIds.push(new mongodb.ObjectId(restaurants[i]._id));
 
-    const filtered = restaurantIds.filter(function (el) {
-      return el != null;
-    });
-
-    const resturantName = []
-    for (let i = 0; i < filtered.length; i++) {
-      const restaurant = await this.restaurantRepository.find({
-        where: {
-          _id: new mongodb.ObjectId(filtered[i].id),
-        }, select: ['restaurantName']
-      })
-      resturantName.push(restaurant[0])
-    }
-    
-    const sortedName = resturantName.sort((a, b) => a.restaurantName.localeCompare(b.restaurantName))
+    var menus = await this.menuRepository.find({
+      where: {
+        price: { $gte: parseFloat(filterRestaurantMenu.start_price), $lte: parseFloat(filterRestaurantMenu.end_price) },
+        $or: [{ id: { $in: restaurantIds } }]
+      }, select: ['id']
+    })
+    const restaurantIdsFromMenu = []
+    for (let i = 0; i < menus.length; i++) restaurantIdsFromMenu.push(new mongodb.ObjectId(restaurants[i]._id));
+    const restaurantFromMenu = await this.restaurantRepository.find({ where: { $or: [{ _id: { $in: restaurantIdsFromMenu } }] } })
+    const sortedName = restaurantFromMenu.sort((a, b) => a.restaurantName.localeCompare(b.restaurantName))
     return sortedName.slice(0, Number(filterRestaurantMenu.restaurant_count))
   }
 
